@@ -1,0 +1,91 @@
+
+<html>
+<head>
+  	<title></title>
+  	<meta charset="UTF-8">
+  	<script src="http://code.jquery.com/jquery-1.8.3.min.js"></script>
+    <script src="jsencrypt-master/bin/jsencrypt.min.js"></script>
+    <script src="CryptoJS-master/rollups/aes.js"></script>
+  	<script type="text/javascript">
+  		if(!sessionStorage.getItem("islogin")){
+  			window.location.href="http://47.106.210.95:8080/login.html";
+  		}else{
+  			if(window.WebSocket){
+		  		var pubkey = '-----BEGIN PUBLIC KEY-----MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDWK1wQ/WJ2w1+Yjl8oFciiKcbLa/Pn6h544I7XdRDHeztrZkR5ozJgM6QEWkkXMxNTpuEqGGgDNQHJ/5FOV8JnbnVPsS9ZBjObA4Tc+B7ZiB2fBi8Y6WRHwMgKmXN4hUOcGZ6cfce0ORJC6huJsb1xda5xqI+1TcgEL6wVPl2z8QIDAQAB-----END PUBLIC KEY-----';
+			  	var webSocket = new WebSocket("ws://47.106.210.95:9502");
+			  	webSocket.onopen = function (event) {
+			  		sessionStorage.setItem("aes_key", randomWord(false, 16));
+			  		sessionStorage.setItem("aes_iv", randomWord(false, 16));
+			  		var encrypt = new JSEncrypt();
+	          		encrypt.setPublicKey(pubkey);
+	          		var encrypted_key = encrypt.encrypt(sessionStorage.getItem("aes_key"));
+	          		var encrypted_iv = encrypt.encrypt(sessionStorage.getItem("aes_iv"));
+			  		var sendData = {'key':encrypted_key,'iv':encrypted_iv,'status':'onOpen'};
+			  		webSocket.send(JSON.stringify(sendData));
+			  		
+			  	};
+			  	webSocket.onmessage = function (event) {
+			    	var content = document.getElementById('content');
+			    	de_data = event.data;
+			    	
+			    	var key = CryptoJS.enc.Utf8.parse(sessionStorage.getItem("aes_key"));
+			    	//console.log(key);
+			    	//var key = sessionStorage.getItem("aes_key");
+			    	/*de_data = CryptoJS.enc.Base64.parse(de_data).toString(CryptoJS.enc.Utf8);
+			    	console.log(de_data);*/
+			    	var aes_iv = CryptoJS.enc.Utf8.parse(sessionStorage.getItem("aes_iv"));
+			    	var decryptedData = CryptoJS.AES.decrypt(de_data, key, {
+			    		iv:aes_iv,
+					    mode: CryptoJS.mode.CBC,
+					    padding: CryptoJS.pad.Pkcs7
+					});
+
+					var decryptedStr = decryptedData.toString(CryptoJS.enc.Utf8);
+					console.log(decryptedStr);
+
+			    	content.innerHTML = content.innerHTML.concat('<p style="margin-left:20px;height:20px;line-height:20px;">user id-'+decryptedStr+'</p>');
+			  	}
+			  	
+			  	var sendMessage = function(){
+			  		var data = document.getElementById('message').value;
+			  		var encrypt = new JSEncrypt();
+	          		encrypt.setPublicKey(pubkey);
+	          		var encrypted_text = encrypt.encrypt(data);
+	          		var sendData = {'text':encrypted_text,'status':'sendMessage'};
+			  		webSocket.send(JSON.stringify(sendData));
+			  	}
+
+			  	function randomWord(randomFlag, min, max){
+				    var str = "",
+				        range = min,
+				        arr = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
+				    if(randomFlag){
+				        range = Math.round(Math.random() * (max-min)) + min;
+				    }
+				    for(var i=0; i<range; i++){
+				        pos = Math.round(Math.random() * (arr.length-1));
+				        str += arr[pos];
+				    }
+				    return str;
+				}
+		  	}else{
+		  		console.log("WebSocket not support");
+		  	}
+  		}
+	  	
+  	</script>
+</head>
+<body>
+	<div style="width:600px;margin:0 auto;border:1px solid #ccc;">
+		<div id="content" style="overflow-y:auto;height:300px;"></div>
+		<hr/>
+		<div style="height:40px">
+			<input type="text" id="message" style="margin-left:10px;height:25px;width:450px;">
+			<button  onclick="sendMessage();" style="height:28px;width:75px;">send</button>
+		</div>
+	</div>
+</body>
+
+</html>
+
+
