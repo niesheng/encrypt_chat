@@ -8,11 +8,12 @@
     <script src="CryptoJS-master/rollups/aes.js"></script>
   	<script type="text/javascript">
   		if(!sessionStorage.getItem("islogin")){
-  			window.location.href="http://47.106.210.95:8080/login.html";
+  			window.location.href="http://192.168.0.25:8080/login.html";
   		}else{
   			if(window.WebSocket){
 		  		var pubkey = '-----BEGIN PUBLIC KEY-----MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDWK1wQ/WJ2w1+Yjl8oFciiKcbLa/Pn6h544I7XdRDHeztrZkR5ozJgM6QEWkkXMxNTpuEqGGgDNQHJ/5FOV8JnbnVPsS9ZBjObA4Tc+B7ZiB2fBi8Y6WRHwMgKmXN4hUOcGZ6cfce0ORJC6huJsb1xda5xqI+1TcgEL6wVPl2z8QIDAQAB-----END PUBLIC KEY-----';
-			  	var webSocket = new WebSocket("ws://47.106.210.95:9502");
+		  		//服务端ip
+			  	var webSocket = new WebSocket("ws://192.168.0.25:9502");
 			  	webSocket.onopen = function (event) {
 			  		sessionStorage.setItem("aes_key", randomWord(false, 16));
 			  		sessionStorage.setItem("aes_iv", randomWord(false, 16));
