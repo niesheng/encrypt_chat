@@ -45,6 +45,7 @@
 					console.log(decryptedStr);
 
 			    	content.innerHTML = content.innerHTML.concat('<p style="margin-left:20px;height:20px;line-height:20px;">user id-'+decryptedStr+'</p>');
+			    	content.scrollTop = content.scrollHeight;
 			  	}
 			  	
 			  	var sendMessage = function(){
@@ -76,8 +77,8 @@
 	  	
   	</script>
 </head>
-<body>
-	<div style="width:600px;margin:0 auto;border:1px solid #ccc;">
+<body style="background-color: black">
+	<div style="width:600px;margin:0 auto;border:1px solid #ccc;background-color: white">
 		<div id="content" style="overflow-y:auto;height:300px;"></div>
 		<hr/>
 		<div style="height:40px">
