@@ -1,5 +1,7 @@
 # encrypt_chat
 ## client  
-room.html
+run nginx
+run php-fpm
+visit room.html
 ## service 
-service.php
+php service.php
